@@ -2,6 +2,7 @@ const els = {
   fileInput: document.querySelector('#fileInput'),
   loadButton: document.querySelector('#loadButton'),
   exportButton: document.querySelector('#exportButton'),
+  copyButton: document.querySelector('#copyButton'),
   stage: document.querySelector('#stage'),
   projectName: document.querySelector('#projectName'),
   status: document.querySelector('#status'),
@@ -19,6 +20,7 @@ els.fileInput.addEventListener('change', () => {
   if (file) loadSB3(file);
 });
 els.exportButton.addEventListener('click', exportHTML);
+els.copyButton.addEventListener('click', copyHTML);
 [els.stageWidth, els.stageHeight].forEach(input => input.addEventListener('input', () => {
   if (current) {
     updateStageSize();
@@ -45,6 +47,7 @@ async function loadSB3(file) {
     current = {fileName: file.name, project, assets};
     els.projectName.textContent = project.meta?.name || file.name.replace(/\\.sb3$/i, '');
     els.exportButton.disabled = false;
+    els.copyButton.disabled = false;
     updateStageSize();
     renderProject(current);
     setStatus('Loaded successfully. This preview uses DOM/SVG only.');
@@ -52,6 +55,7 @@ async function loadSB3(file) {
     console.error(error);
     current = null;
     els.exportButton.disabled = true;
+    els.copyButton.disabled = true;
     setStatus(error.message || String(error));
   }
 }
@@ -194,8 +198,8 @@ function setStatus(message) {
   els.status.textContent = message;
 }
 
-function exportHTML() {
-  if (!current) return;
+function generateHTML() {
+  if (!current) return null;
 
   const width = Math.max(1, Number(els.stageWidth.value) || 480);
   const height = Math.max(1, Number(els.stageHeight.value) || 360);
@@ -212,7 +216,13 @@ function exportHTML() {
     assets[name] = bytesToDataURL(bytes, mime);
   }
 
-  const html = buildStandaloneHTML(projectJSON, JSON.stringify(assets), width, height, responsive);
+  return buildStandaloneHTML(projectJSON, JSON.stringify(assets), width, height, responsive);
+}
+
+function exportHTML() {
+  const html = generateHTML();
+  if (!html) return;
+
   const blob = new Blob([html], {type: 'text/html'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -220,7 +230,20 @@ function exportHTML() {
   a.download = (current.fileName || 'project').replace(/\\.sb3$/i, '') + '-site.html';
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  setStatus('Exported canvas-free HTML.');
+  setStatus('Saved canvas-free HTML.');
+}
+
+async function copyHTML() {
+  const html = generateHTML();
+  if (!html) return;
+
+  try {
+    await navigator.clipboard.writeText(html);
+    setStatus('HTML copied to the clipboard.');
+  } catch (error) {
+    console.error(error);
+    setStatus('Clipboard access was blocked. Try running the site from HTTPS or localhost.');
+  }
 }
 
 function buildStandaloneHTML(projectJSON, assetsJSON, width, height, responsive) {
