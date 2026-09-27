@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TurboWarp: Site Maker (unofficial)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">TW</div>
+      <div>
+        <div class="title">TurboWarp: Site Maker</div>
+        <div class="subtitle">unofficial</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="loadButton" class="primary">Load .sb3</button>
+      <button id="exportButton" disabled>Export HTML</button>
+      <input id="fileInput" type="file" accept=".sb3,application/zip" hidden>
+    </div>
+  </header>
+  <main class="layout">
+    <aside class="sidebar">
+      <section>
+        <h2>Project</h2>
+        <div id="projectName" class="muted">No project loaded</div>
+      </section>
+      <section>
+        <h2>SVG HTML Maker</h2>
+        <p>Exports the stage as real DOM elements and inline SVG. No canvas or WebGL renderer is used.</p>
+        <ul>
+          <li>Inspectable sprites</li>
+          <li>Selectable text</li>
+          <li>Normal right-click</li>
+          <li>480×360 logical stage</li>
+          <li>Responsive display</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Export</h2>
+        <label class="field"><span>Stage width</span><input id="stageWidth" type="number" min="1" value="480"></label>
+        <label class="field"><span>Stage height</span><input id="stageHeight" type="number" min="1" value="360"></label>
+        <label class="check"><input id="responsive" type="checkbox" checked><span>Responsive stage</span></label>
+      </section>
+    </aside>
+    <section class="workspace">
+      <div class="workspace-head">
+        <div><h1>Preview</h1><p id="status">Load an SB3 project to begin.</p></div>
+        <div class="badges"><span class="badge">DOM</span><span class="badge">SVG</span><span class="badge">Canvas-free</span></div>
+      </div>
+      <div class="stage-shell"><div id="stage" class="stage" aria-label="Project preview"></div></div>
+      <details class="debug"><summary>Generated DOM</summary><pre id="domOutput">Nothing loaded.</pre></details>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
